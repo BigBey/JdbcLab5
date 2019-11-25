@@ -1,8 +1,9 @@
-package service;
+package service.service_db;
 
 import bl.Util;
 import dao.ShopDAO;
 import entity.Shop;
+import org.h2.jdbc.JdbcSQLNonTransientException;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -81,6 +82,7 @@ public class ShopService extends Util implements ShopDAO {
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
+            resultSet.next();
             shop.setId(resultSet.getLong("ID"));
             shop.setTitle(resultSet.getString("TITLE"));
 
@@ -88,6 +90,40 @@ public class ShopService extends Util implements ShopDAO {
 
 
         }catch(SQLException e){
+            e.printStackTrace();
+        } finally {
+            if (preparedStatement != null){
+                preparedStatement.close();
+            }
+            if(connection != null){
+                connection.close();
+            }
+        }
+        return shop;
+    }
+
+    public Shop getByTitle(String title) throws SQLException {
+        PreparedStatement preparedStatement = null;
+
+        String sql = "SELECT ID, TITLE FROM SHOPS WHERE TITLE = ?";
+
+        Shop shop = new Shop();
+        try{
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, title);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            resultSet.next();
+            shop.setId(resultSet.getLong("ID"));
+            shop.setTitle(resultSet.getString("TITLE"));
+
+            preparedStatement.executeQuery();
+
+
+        }catch (JdbcSQLNonTransientException e){
+            System.out.println("Shop or product not found");
+        } catch(SQLException e){
             e.printStackTrace();
         } finally {
             if (preparedStatement != null){

@@ -15,6 +15,8 @@ public interface ShopDAO {
 
     Shop getById(Long id) throws SQLException;
 
+    Shop getByTitle(String title) throws SQLException;
+
     //update
     void update(Shop shop) throws SQLException;
 
