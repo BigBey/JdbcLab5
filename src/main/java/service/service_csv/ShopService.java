@@ -51,7 +51,22 @@ public class ShopService implements ShopDAO {
     }
 
     public Shop getByTitle(String title) throws SQLException {
-        return null;
+        Shop shop = new Shop();
+        try {
+            CSVReader reader = new CSVReader(new FileReader(csv), ',', '\0', 0);
+            List<String[]> allProducts = reader.readAll();
+            for(int i = 0; i < allProducts.size(); i++) {
+                String[] row = allProducts.get(i);
+                if(row[1].equals(title)){
+                    shop.setId(Long.parseLong(row[0]));
+                    shop.setTitle(row[1]);
+                    break;
+                }
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return shop;
     }
 
     public void update(Shop shop) throws SQLException {

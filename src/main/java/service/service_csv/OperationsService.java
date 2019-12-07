@@ -82,14 +82,67 @@ public class OperationsService implements OperationsDAO {
     }
 
     public void whatCanBy(Shop shop, Long money) {
-
+        try {
+            CSVReader reader = new CSVReader(new FileReader(productsCsv), ',', '\0', 0);
+            List<String[]> allProducts = reader.readAll();
+            for (int i = 0; i < allProducts.size(); i++) {
+                String[] row = allProducts.get(i);
+                if((row.length - 1) % 3 == 0) {
+                    for (int j = 0; j < row.length; j++) {
+                        String s = row[j];
+                        if(j % 3 == 1 && Long.parseLong(s) == shop.getId()){
+                            System.out.println("В " + shop.getTitle() + " можно купить " + money/(Long)Math.round(Double.parseDouble(row[j+2])) + " " + row[0]);
+                        }
+                    }
+                }else{
+                    System.out.println("wrong format");
+                }
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Long buyConsignment(String shopTitle, String productTitle, Long count) {
-        return null;
+        Long sum = 0L;
+        try {
+            ShopService shopService = new ShopService();
+            Shop shop = shopService.getByTitle(shopTitle);
+            CSVReader reader = new CSVReader(new FileReader(productsCsv), ',', '\0', 0);
+            List<String[]> allProducts = reader.readAll();
+            for (int i = 0; i < allProducts.size(); i++) {
+                String[] row = allProducts.get(i);
+                if((row.length - 1) % 3 == 0) {
+                    if(row[0].equals(productTitle)) {
+                        for (int j = 0; j < row.length; j++) {
+                            String s = row[j];
+                            if (j % 3 == 1 && Long.parseLong(s) == shop.getId()) {
+                                if(Long.parseLong(row[j+1]) < count ){
+                                    System.out.println("not enough goods");
+                                    return -1L;
+                                }else {
+                                    sum = Math.round(Double.parseDouble(row[j + 1]) * Double.parseDouble(row[j + 2]));
+                                }
+                                break;
+                            }
+                            break;
+                        }
+                        break;
+                    }
+                }else{
+                    System.out.println("wrong format");
+                }
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return sum;
     }
 
     public Shop findCheapestShop(String product, Long count) {
-        return null;
+        Shop shop = findCheapestShop(product);
+        return shop;
     }
 }
